@@ -28,46 +28,30 @@ public class PlayerMoveGridless : MonoBehaviour {
 		Vector3 movement = Vector3.zero;
 		//Debug.Log(movement);
 		
-		if(Input.GetKey(KeyCode.Keypad8)) {
+		if(Input.GetButton("North") ) {
 			// North is positive Z
 			movement += new Vector3(0, 0, movement_rate);
 		}
-		else if(Input.GetKey(KeyCode.Keypad9)) {
-			// NE
-			movement += new Vector3(movement_rate, 0, movement_rate);
-		}
-		else if(Input.GetKey(KeyCode.Keypad6)) {
-			// East is positive X
-			movement += new Vector3(movement_rate, 0, 0);
-		}
-		else if(Input.GetKey(KeyCode.Keypad3)) {
-			// SE
-			movement += new Vector3(movement_rate, 0, -movement_rate);
-		}
-		else if(Input.GetKey(KeyCode.Keypad2)) {
+		if(Input.GetButton("South") ) {
 			// S
 			movement +=  new Vector3(0, 0, -movement_rate);
 		}
-		else if(Input.GetKey(KeyCode.Keypad1)) {
-			// SW
-			movement += new Vector3(-movement_rate, 0, -movement_rate);
+		if(Input.GetButton("East") ) {
+			// East is positive X
+			movement += new Vector3(movement_rate, 0, 0);
 		}
-		else if(Input.GetKey(KeyCode.Keypad4)) {
+		if(Input.GetButton("West") ) {
 			// W
 			movement += new Vector3(-movement_rate, 0, 0);
 		}
-		else if(Input.GetKey(KeyCode.Keypad7)) {
-			// NW
-			movement += new Vector3(-movement_rate, 0, movement_rate);
-		}
 		
-		
+		Debug.Log(movement);
 		if(movement.magnitude > 0) {
 			Pause(false);
 			movement = movement.normalized * movement_rate;
 			character_controller.Move(movement * last_delta);
 		}
-		else if (Input.GetKey(KeyCode.Keypad5)) {
+		else if (Input.GetButton("Wait") ) {
 			Pause(false);
 		}
 		else {
