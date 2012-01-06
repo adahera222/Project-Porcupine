@@ -10,7 +10,11 @@ This is a Unity 3D 3.5 project.
 This is currently in beta pre-release and is available here:
 	http://unity3d.com/unity/preview/
 
-2. Use Git to clone the repository.
+2. Create a github account
+
+3. Fork this repository
+
+4. Use Git to clone your copy of repository to your computer.
 
 How to use Git is beyond the scope of this document.
 
@@ -23,9 +27,15 @@ How to install Git on Windows:
 The command to clone our repository:
 	git clone git@github.com:TeamPorcupine/Project-Porcupine.git
 
-3. Go into the Assets/Scenes folder of the project and double-click "_dummy-scene.scene".
+5. Go into the Assets/Scenes folder of the project and double-click "_dummy-scene.scene".
 
 This will launch Unity and cause it to create its /Library folder, which is not a part of the repository.
+
+
+6. You can commit and push your changes back to your fork.
+
+7. When you want to merge your changes into the primary repository, go back to the primary repository's page
+   on github and start a pull request.
 
 == ADDITIONAL TOOLS
 
@@ -40,13 +50,6 @@ Gimp, Paint.NET, or Photoshop for texture editing
 	files very well. Experimentation will have to show what workflow is best, especially for integration
 	with Blender.
 
-== GIT WORKFLOW
-
-You should:
-
-	- Use branches for virtually all work and push the branches to GitHub.
-	- Do not push changes to origin/master
-	- Only Pull Requests on GitHub should be used to merge changes into origin/master.
 
 == UNITY AND VERSION CONTROL
 
@@ -80,3 +83,4 @@ probably want to clean them out from time to time.  You can also change this beh
 
 Still to be determined and is partially dependent on what 3rd-party assets (like textures) we want to 
 take advantage of.  The program code will likely be GPL.
+
