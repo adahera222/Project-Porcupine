@@ -102,7 +102,7 @@ public class MapGen_Dungeon : MonoBehaviour {
 		// Make sure all the rooms are actually connected
 		ConnectRooms();
 		
-		//CreateFogOfWar();
+		CreateFogOfWar();
 		
 		
 	}
