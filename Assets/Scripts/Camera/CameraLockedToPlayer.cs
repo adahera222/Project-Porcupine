@@ -7,15 +7,24 @@ public class CameraLockedToPlayer : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		player_transform = (Transform)GameObject.Find("Player").GetComponent("Transform");
 	}
 	
 	// Update is called once per frame
 	void LateUpdate () {
-		transform.position = new Vector3(
-				player_transform.position.x, 
-				transform.position.y, 
-				player_transform.position.z
-			);
+		if( !player_transform ) {
+			// We can't grab the player in Start() because the map might not be generated yet.
+			GameObject player = GameObject.Find("Player");
+			if(player)
+				player_transform = (Transform)player.GetComponent(typeof(Transform));
+		}
+		
+		
+		if( player_transform ) {
+			transform.position = new Vector3(
+					player_transform.position.x, 
+					transform.position.y, 
+					player_transform.position.z
+				);
+		}
 	}
 }
