@@ -227,17 +227,18 @@ public class MapGen_Dungeon : MonoBehaviour {
 		List<Room> connected_rooms = new List<Room>();
 		for(int i=0; i < room_array.Count; i++) {
 			if( room_array[i].is_connected == false ) {
-				unconnected_rooms.AddRange(room_array);
-				unconnected_rooms.Remove(room_array[0]);
+				unconnected_rooms.Add(room_array[i]);
 			}
 			else {
-				connected_rooms.Add(room_array[0]);
+				connected_rooms.Add(room_array[i]);
 			}
 		}
 		
 		while(unconnected_rooms.Count > 0) {
+			Debug.Log("Unconnected rooms: " + unconnected_rooms.Count);
 			Room r = unconnected_rooms[0];
-
+			r.is_connected = true;
+			
 			Room other_room = r;
 			while(other_room == r)
 				other_room = connected_rooms[Random.Range(0, connected_rooms.Count)];
@@ -251,13 +252,15 @@ public class MapGen_Dungeon : MonoBehaviour {
 			connected_rooms = new List<Room>();
 			for(int i=0; i < room_array.Count; i++) {
 				if( room_array[i].is_connected == false ) {
-					unconnected_rooms.AddRange(room_array);
-					unconnected_rooms.Remove(room_array[0]);
+					unconnected_rooms.Add(room_array[i]);
 				}
 				else {
-					connected_rooms.Add(room_array[0]);
+					connected_rooms.Add(room_array[i]);
 				}
 			}
+			
+			Debug.Log("Unconnected rooms: " + unconnected_rooms.Count);
+		//	return;
 		
 		}
 		
@@ -277,7 +280,7 @@ public class MapGen_Dungeon : MonoBehaviour {
 		int x = x1;
 		int y = y1;
 		
-		while(x != x2 && y != y2) {
+		while(x != x2 || y != y2) {
 			int dx = x2 - x;
 			int dy = y2 - y;
 			
@@ -300,9 +303,9 @@ public class MapGen_Dungeon : MonoBehaviour {
 			// TODO: Right now, all hallways are guaranteed to connect to a connected room
 			// but 
 			for(int i=0; i < room_array.Count; i++) {
-				if( room_array[i].ContainsTile(x,y) ) {
-					room_array[i].is_connected = true;
-				}
+			//	if( room_array[i].ContainsTile(x,y) ) {
+			//		room_array[i].is_connected = true;
+			//	}
 			}
 		}
 		
