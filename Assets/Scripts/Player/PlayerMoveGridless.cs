@@ -45,7 +45,7 @@ public class PlayerMoveGridless : MonoBehaviour {
 			movement += new Vector3(-movement_rate, 0, 0);
 		}
 		
-		Debug.Log(movement);
+//		Debug.Log(movement);
 		if(movement.magnitude > 0) {
 			Pause(false);
 			movement = movement.normalized * movement_rate;
