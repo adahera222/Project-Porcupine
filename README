@@ -24,9 +24,6 @@ Getting start with Git:
 How to install Git on Windows:
 	http://help.github.com/win-set-up-git/
 
-The command to clone our repository:
-	git clone git@github.com:TeamPorcupine/Project-Porcupine.git
-
 5. Go into the Assets/Scenes folder of the project and double-click "_dummy-scene.scene".
 
 This will launch Unity and cause it to create its /Library folder, which is not a part of the repository.
