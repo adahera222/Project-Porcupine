@@ -30,14 +30,26 @@ public class MapGen_Dungeon : MonoBehaviour {
 	public int max_room_x = 8;
 	public int max_room_y = 8;
 	
+	public int number_of_rooms_min = 5;
+	public int number_of_rooms_max = 10;
+	private int number_of_rooms;
+	
+	// number_of_rooms * the results of this
+	// NOTE: hallways will start from random rooms and then wander randomly
+	// unconnected rooms will then get a hallway from them to another room
+	public float hallways_per_room_min = 1.0f;
+	public float hallways_per_room_max = 1.0f;
+	
 	private class Room {
 		public int origin_x, origin_y, size_x, size_y;
+		public bool is_connected;
 		
 		public Room(int origin_x, int origin_y, int size_x, int size_y) {
 			this.origin_x = origin_x;
 			this.origin_y = origin_y;
 			this.size_x = size_x;
 			this.size_y = size_y;
+			this.is_connected = false;
 		}
 		
 		public override string ToString() {
@@ -60,6 +72,14 @@ public class MapGen_Dungeon : MonoBehaviour {
 			
 			return true;
 		}
+		
+		public bool ContainsTile(int x, int y) {
+			if( x >= origin_x && x < origin_x + size_x &&
+				y >= origin_y && y < origin_y + size_y )
+					return true;
+			
+			return false;
+		}
 	}
 	
 	private List<Room> room_array;
@@ -75,8 +95,13 @@ public class MapGen_Dungeon : MonoBehaviour {
 		CreateFloor();
 		CreateWalls();
 		MakeRooms();
+		
+		// Make random, interesting hallways
 		MakeHallways();
+		
+		// Make sure all the rooms are actually connected
 		ConnectRooms();
+		
 		//CreateFogOfWar();
 		
 		
@@ -110,7 +135,7 @@ public class MapGen_Dungeon : MonoBehaviour {
 	}
 	
 	void MakeRooms() {
-		int number_of_rooms = Random.Range(5, 5);
+		number_of_rooms = Random.Range(number_of_rooms_min, number_of_rooms_max+1);
 		room_array = new List<Room>();
 		
 		for(int i=0; i < number_of_rooms; i++) {
@@ -118,21 +143,20 @@ public class MapGen_Dungeon : MonoBehaviour {
 			
 			if(i==0) {
 				// Place the player in the first room.
-				GameObject.Instantiate(player, new Vector3((room_array[0].origin_x+room_array[0].size_x/2)*tile_size+offset_x, 0, (room_array[0].origin_y+room_array[0].size_y/2)*tile_size+offset_z), Quaternion.identity);
+				GameObject p = (GameObject)GameObject.Instantiate(player, new Vector3((room_array[0].origin_x+room_array[0].size_x/2)*tile_size+offset_x, 0, (room_array[0].origin_y+room_array[0].size_y/2)*tile_size+offset_z), Quaternion.identity);
+				p.name = "Player";
 			}
 		}
 	}
 	
 	void MakeRoom() {
-		Debug.Log("MakeRoom()");
+		//Debug.Log("MakeRoom()");
 		int origin_x=0, origin_y=0, size_x=0, size_y=0;
 		bool found_spot = false;
 		int search_limit = 10;
 		Room r = null;
 		
-		Debug.Log("pre-loop");
 		while(!found_spot) {
-			Debug.Log("loop");
 			if(search_limit-- == 0) {
 				Debug.Log("MakeRoom() can't seem to place a room. Breaking!");
 				break;
@@ -155,18 +179,18 @@ public class MapGen_Dungeon : MonoBehaviour {
 				
 			// Check for conflicts
 			found_spot = true;
-			Debug.Log(room_array.Count);
+			//Debug.Log(room_array.Count);
 			for(int i=0; i < room_array.Count; i++) {
-				Debug.Log("room_array[i] type :" + room_array[i] );
+				//Debug.Log("room_array[i] type :" + room_array[i] );
 
 				if(	r.Collides(room_array[i]) ) {
-					Debug.Log("!!!!!!!!!!!!!!Collision between "+r+" and "+room_array[i]);
+					//Debug.Log("MakeRoom() -- Collision between "+r+" and "+room_array[i]);
 					found_spot = false;
 					break;
 				}
-				Debug.Log("No collision between "+r+" and "+room_array[i]);
+				//Debug.Log("No collision between "+r+" and "+room_array[i]);
 			}
-			Debug.Log("Done searching, did we find a match? " + found_spot);
+			//Debug.Log("Done searching, did we find a match? " + found_spot);
 		}
 		
 		if(found_spot) {
@@ -188,9 +212,100 @@ public class MapGen_Dungeon : MonoBehaviour {
 	}
 	
 	void MakeHallways() {
+		//int number_of_hallways = number_of_rooms * Random.Range(hallways_per_room_min, hallways_per_room_max);
 	}
 	
 	void ConnectRooms() {
+		// TODO: Use pathfinding checks to detect if each room is connected
+		// to the starting room.
+		
+		// For now, assume all rooms but the starting on are unconnected
+		room_array[0].is_connected = true;
+		
+		
+		List<Room> unconnected_rooms = new List<Room>();
+		List<Room> connected_rooms = new List<Room>();
+		for(int i=0; i < room_array.Count; i++) {
+			if( room_array[i].is_connected == false ) {
+				unconnected_rooms.AddRange(room_array);
+				unconnected_rooms.Remove(room_array[0]);
+			}
+			else {
+				connected_rooms.Add(room_array[0]);
+			}
+		}
+		
+		while(unconnected_rooms.Count > 0) {
+			Room r = unconnected_rooms[0];
+
+			Room other_room = r;
+			while(other_room == r)
+				other_room = connected_rooms[Random.Range(0, connected_rooms.Count)];
+			
+			MakeConnection(r, other_room);
+			
+			// Making this connection may have passed through multiple
+			// rooms, so just regenerate everything
+			// TODO: This code will go away once we have proper hallway generation
+			unconnected_rooms = new List<Room>();
+			connected_rooms = new List<Room>();
+			for(int i=0; i < room_array.Count; i++) {
+				if( room_array[i].is_connected == false ) {
+					unconnected_rooms.AddRange(room_array);
+					unconnected_rooms.Remove(room_array[0]);
+				}
+				else {
+					connected_rooms.Add(room_array[0]);
+				}
+			}
+		
+		}
+		
+	}
+	
+	void MakeConnection(Room r1, Room r2) {
+		MakeHallway(
+				r1.origin_x+r1.size_x/2,
+				r1.origin_y+r1.size_y/2,
+				r2.origin_x+r2.size_x/2,
+				r2.origin_y+r2.size_y/2
+			);
+	}
+	
+	void MakeHallway(int x1, int y1, int x2, int y2) {
+		// Super basic method.  Need to make non-diagonal lines later
+		int x = x1;
+		int y = y1;
+		
+		while(x != x2 && y != y2) {
+			int dx = x2 - x;
+			int dy = y2 - y;
+			
+			//if(Mathf.Abs(dx) > Mathf.Abs(dy)) {
+			if(dx != 0) {
+				if(dx < 0)
+					x--;
+				else
+					x++;
+			}
+			else {
+				if(dy < 0)
+					y--;
+				else
+					y++;
+			}
+			
+			Destroy(wall_array[x,y]);
+			
+			// TODO: Right now, all hallways are guaranteed to connect to a connected room
+			// but 
+			for(int i=0; i < room_array.Count; i++) {
+				if( room_array[i].ContainsTile(x,y) ) {
+					room_array[i].is_connected = true;
+				}
+			}
+		}
+		
 	}
 	
 	void CreateFogOfWar() {

@@ -14,6 +14,7 @@ public class CameraLockedToPlayer : MonoBehaviour {
 		if( !player_transform ) {
 			// We can't grab the player in Start() because the map might not be generated yet.
 			GameObject player = GameObject.Find("Player");
+			Debug.Log(player);
 			if(player)
 				player_transform = (Transform)player.GetComponent(typeof(Transform));
 		}
