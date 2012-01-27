@@ -2,28 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class MapGenDungeon : MonoBehaviour {
-	
-	public GameObject[] walls;
-	public GameObject fogOfWar;
-	public GameObject player;
-	public GameObject floor;
-	
-	// length and width in tile count
-	// y is technically in the z axis in the world
-	public int tilesX = 40;
-	public int tilesY = 20;
-	
-	public float tileSize = 2.0f;
-
-	// Actual physical length and width of our map area
-	private float sizeX;
-	private float sizeZ;
-	
-	private float offsetX;
-	private float offsetZ;
-	
-	private GameObject[,] wallArray;
+public class MapGenDungeon : MapGenTiled {
 	
 	public int minRoomX = 3;
 	public int minRoomY = 3;
@@ -85,14 +64,8 @@ public class MapGenDungeon : MonoBehaviour {
 	private List<Room> room_array;
 
 	// Use this for initialization
-	void Start () {
-		sizeX = tilesX * tileSize;
-		sizeZ = tilesY * tileSize;
-		
-		offsetX = -sizeX/2+tileSize/2;
-		offsetZ = -sizeZ/2+tileSize/2;
-		
-		CreateFloor();
+	public override void Start () {
+		base.Start();
 		CreateWalls();
 		MakeRooms();
 		
@@ -102,34 +75,15 @@ public class MapGenDungeon : MonoBehaviour {
 		// Make sure all the rooms are actually connected
 		ConnectRooms();
 		
-		CreateFogOfWar();
-		
-		
-	}
-	
-	void CreateFloor() {
-		// Get our floor object
-		GameObject floor_instance = (GameObject)GameObject.Instantiate(floor, Vector3.zero, Quaternion.identity);
-		
-		// Get it's mesh
-		Mesh floor_mesh = ((MeshFilter)floor_instance.GetComponent(typeof(MeshFilter))).mesh;
-		
-		// And figure out it's size (by default, planes are 10x10)
-		Vector3 floor_size = floor_mesh.bounds.size;
-
-		// Now scale it for our desired floor size
-		floor_instance.transform.localScale = new Vector3( sizeX/floor_size.x, 1.0f, sizeZ/floor_size.z );
-		
-		// TODO: Texture tiling
 	}
 	
 	void CreateWalls() {
 		// This function fills the level with walls.
-		wallArray = new GameObject[tilesX,tilesY];
 		
 		for(int x=0; x < tilesX; x++) {
 			for(int y=0; y < tilesY; y++) {
-				wallArray[x,y] = (GameObject)GameObject.Instantiate(walls[0], new Vector3(x*tileSize+offsetX, 0, y*tileSize+offsetZ), Quaternion.identity);
+				//wallArray[x,y] = (GameObject)GameObject.Instantiate(walls[0], new Vector3(x*tileSize+offsetX, 0, y*tileSize+offsetZ), Quaternion.identity);
+				CreateWall(x,y);
 			}
 		}
 	}
@@ -138,18 +92,27 @@ public class MapGenDungeon : MonoBehaviour {
 		numberOfRooms = Random.Range(numberOfRoomsMin, numberOfRoomsMax+1);
 		room_array = new List<Room>();
 		
-		for(int i=0; i < numberOfRooms; i++) {
-			MakeRoom();
+		int i=0;
+		while(i < numberOfRooms) {
 			
-			if(i==0) {
-				// Place the player in the first room.
-				GameObject p = (GameObject)GameObject.Instantiate(player, new Vector3((room_array[0].origin_x+room_array[0].size_x/2)*tileSize+offsetX, 0, (room_array[0].origin_y+room_array[0].size_y/2)*tileSize+offsetZ), Quaternion.identity);
-				p.name = "Player";
+			if( MakeRoom() ) {
+				if(i==0) {
+					// Place the player in the first room.
+					CreatePlayer(new Vector3((room_array[i].origin_x+room_array[i].size_x/2)*tileSize+offsetX, 0, (room_array[i].origin_y+room_array[i].size_y/2)*tileSize+offsetZ), Quaternion.identity);
+				}
+				else {
+					Room r = room_array[i];
+					CreateMonster(
+						new Vector3( (r.origin_x+r.size_x/2)*tileSize+offsetX, 0, (r.origin_y+r.size_y/2)*tileSize+offsetZ ),
+						Quaternion.identity);
+				}
+				
+				i++;
 			}
 		}
 	}
 	
-	void MakeRoom() {
+	bool MakeRoom() {
 		//Debug.Log("MakeRoom()");
 		int origin_x=0, origin_y=0, size_x=0, size_y=0;
 		bool found_spot = false;
@@ -197,16 +160,16 @@ public class MapGenDungeon : MonoBehaviour {
 			room_array.Add(r);
 			
 			RemoveWallsForRoom(r);
+
 		}
+		
+		return found_spot;
 	}
 	
 	void RemoveWallsForRoom(Room r) {
 		for(int x=r.origin_x; x < r.origin_x+r.size_x; x++) {
 			for(int y=r.origin_y; y < r.origin_y+r.size_y; y++) {
-				if(wallArray[x,y]) {
-					Destroy(wallArray[x,y]);
-					wallArray[x,y] = null;
-				}
+				DestroyWall(x,y);
 			}
 		}
 	}
@@ -298,7 +261,7 @@ public class MapGenDungeon : MonoBehaviour {
 					y++;
 			}
 			
-			Destroy(wallArray[x,y]);
+			DestroyWall(x,y);
 			
 			// TODO: Right now, all hallways are guaranteed to connect to a connected room
 			// but 
@@ -309,13 +272,5 @@ public class MapGenDungeon : MonoBehaviour {
 			}
 		}
 		
-	}
-	
-	void CreateFogOfWar() {
-		for(int x=0; x < tilesX; x++) {
-			for(int y=0; y < tilesY; y++) {
-				GameObject.Instantiate(fogOfWar, new Vector3(x*tileSize+offsetX, 1, y*tileSize+offsetZ), Quaternion.identity);
-			}
-		}
 	}
 }
