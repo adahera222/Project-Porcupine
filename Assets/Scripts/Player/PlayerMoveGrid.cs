@@ -75,7 +75,7 @@ public class PlayerMoveGrid : MonoBehaviour {
 		}	// if(cooldown_remaining <= 0.0f)
 	}
 	
-	void Pause(bool p = true) {
+	void Pause(bool p) {
 		if(p)
 			Time.timeScale = 0;
 		else

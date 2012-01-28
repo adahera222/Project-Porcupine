@@ -2,7 +2,10 @@ using UnityEngine;
 using System.Collections;
 
 public class GuiGroundHud : MonoBehaviour {
-
+	
+	GameObject player = null;
+	TargettingControl playerTargettingControl = null;
+	
 	// Use this for initialization
 	void Start () {
 	
@@ -10,6 +13,12 @@ public class GuiGroundHud : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		if(player == null) {
+			player = GameObject.Find("Player");
+			playerTargettingControl = player.GetComponent<TargettingControl>();
+		}
+		
+		
 		if( Input.GetKeyUp( KeyCode.Alpha1 ) ) {
 			DoToolbar(1);
 		}
@@ -52,5 +61,18 @@ public class GuiGroundHud : MonoBehaviour {
 	
 	void DoShoot() {
 		Debug.Log("BANG!");
+		
+		if(playerTargettingControl == null) {
+			Debug.LogError("Trying to call DoShoot() without a targetting control.");
+			return;
+		}
+		
+		TargettingControl.TargetAcquiredCallback callback = new TargettingControl.TargetAcquiredCallback( TargetAcquired );
+				
+		playerTargettingControl.StartTargetting( callback );
+	}
+	
+	void TargetAcquired(GameObject target) {
+		Debug.Log("***Target Acquired: " + target);
 	}
 }
