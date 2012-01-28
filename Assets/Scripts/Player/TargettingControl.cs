@@ -58,12 +58,15 @@ public class TargettingControl : MonoBehaviour {
 	}
 	
 	Transform[] GetVisibleTargets() {
-		Debug.Log("GetVisibleTargets()");
+		//Debug.Log("GetVisibleTargets()");
 		List<Transform> targets = new List<Transform>();
 		
 		GameObject[] targettables = GameObject.FindGameObjectsWithTag("Targettable");
 		
-		Debug.Log("Targettables: " + targettables.Length);
+		//Debug.Log("Targettables: " + targettables.Length);
+
+		CharacterController myCC = this.transform.GetComponent<CharacterController>();
+		Vector3 origin = this.transform.position + myCC.center;
 		
 		for(int i=0; i < targettables.Length; i++) {
 			// Skip ourselves!
@@ -72,13 +75,24 @@ public class TargettingControl : MonoBehaviour {
 			
 			Vector3 pos = targettables[i].transform.position;
 			Vector3 screenPoint = Camera.main.WorldToScreenPoint(pos);
-			Debug.Log(targettables[i].name + " screenPoint = " + screenPoint);
+			//Debug.Log(targettables[i].name + " screenPoint = " + screenPoint);
 			if( Camera.main.pixelRect.Contains(screenPoint) ) {
-				targets.Add(targettables[i].transform);
+		
+				Vector3 direction = targettables[i].collider.ClosestPointOnBounds(origin) - origin;
+				//Debug.Log("Origin: " + origin + " Direction: " + direction);
+				
+				RaycastHit hitInfo;
+				
+				if(Physics.Raycast(origin, direction, out hitInfo)) {
+					//Debug.Log("We hit: " + hitInfo.collider.name);
+					if(hitInfo.collider.transform == targettables[i].transform) {
+						targets.Add(targettables[i].transform);
+					}
+				}
 			}
 		}
 		
-		Debug.Log("Targets: " + targets.Count);
+		//Debug.Log("Targets: " + targets.Count);
 		
 		return targets.ToArray();
 	}
