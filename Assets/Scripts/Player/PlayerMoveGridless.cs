@@ -55,11 +55,11 @@ public class PlayerMoveGridless : MonoBehaviour {
 			Pause(false);
 		}
 		else {
-			Pause();
+			Pause(true);
 		}
 	}
 	
-	void Pause(bool p = true) {
+	void Pause(bool p) {
 		if(p)
 			Time.timeScale = 0;
 		else
