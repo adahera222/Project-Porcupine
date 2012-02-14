@@ -12,8 +12,11 @@ public class TargettingControl : MonoBehaviour {
 	Transform selectWidgetTransform = null;
 	Renderer selectWidgetRenderer = null;
 	
-	Transform[] visibleTargets;
-	int currentSelection;
+	List<Transform> visibleTargets = null;
+	int currentSelection = 0;
+	
+	// What we had selected last time
+	Transform savedSelection = null;
 	
 	// Use this for initialization
 	void Start () {
@@ -45,9 +48,19 @@ public class TargettingControl : MonoBehaviour {
 			TargettingComplete(null);
 		}
 		else {
-			currentSelection = 0;
+			//currentSelection = 0;
+			setDefaultSelection();
 			selectWidgetRenderer.enabled = true;
 			UpdateWidget();
+		}
+	}
+	
+	void setDefaultSelection() {
+		if(savedSelection && visibleTargets.Contains(savedSelection)) {
+			currentSelection = visibleTargets.FindIndex(savedSelection);
+		}
+		else {
+			currentSelection = 0;
 		}
 	}
 	
@@ -57,7 +70,7 @@ public class TargettingControl : MonoBehaviour {
 		callback(selection);
 	}
 	
-	Transform[] GetVisibleTargets() {
+	List<Transform> GetVisibleTargets() {
 		//Debug.Log("GetVisibleTargets()");
 		List<Transform> targets = new List<Transform>();
 		
@@ -94,7 +107,7 @@ public class TargettingControl : MonoBehaviour {
 		
 		//Debug.Log("Targets: " + targets.Count);
 		
-		return targets.ToArray();
+		return targets;
 	}
 	
 	void UpdateWidget() {

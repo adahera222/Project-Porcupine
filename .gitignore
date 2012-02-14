@@ -6,6 +6,7 @@
 # Do not version auto-generated Blender backup files
 *.blend1
 *.blend2
+.DS_Store
 
 # We don't need MonoDevelop files
 *.csproj
