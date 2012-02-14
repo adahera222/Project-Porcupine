@@ -12,7 +12,7 @@ public class TargettingControl : MonoBehaviour {
 	Transform selectWidgetTransform = null;
 	Renderer selectWidgetRenderer = null;
 	
-	List<Transform> visibleTargets = null;
+	List<Transform> visibleTargetables = null;
 	int currentSelection = 0;
 	
 	// What we had selected last time
@@ -22,14 +22,27 @@ public class TargettingControl : MonoBehaviour {
 	void Start () {
 		selectWidgetTransform = ((GameObject)GameObject.Instantiate(selectionWidget)).transform;
 		selectWidgetRenderer = selectWidgetTransform.GetChild(0).renderer;
-		selectWidgetRenderer.enabled = false;
+		StopTargetting();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		Input.GetAxis ("NextTarget");
-		Input.GetAxis ("ShiftModifier");
+		if( Input.GetKeyDown( KeyCode.Return ) || Input.GetKeyDown( KeyCode.KeypadEnter ) ) {
+			TargettingComplete(savedSelection.gameObject);
+		}
+		
+		if( Input.GetKeyDown( KeyCode.Tab ) ) {
+			currentSelection++;
+			if( currentSelection >= visibleTargetables.Count ) {
+				currentSelection = 0;
+			}
+			savedSelection = visibleTargetables[currentSelection];
+		}
 
+
+		Input.GetAxis ("ShiftModifier");
+		
+		UpdateWidget();
 	}
 	
 	/**
@@ -42,9 +55,9 @@ public class TargettingControl : MonoBehaviour {
 	
 	public void StartTargetting(TargetAcquiredCallback callback) {
 		this.callback = callback;
-		visibleTargets = GetVisibleTargets();
+		visibleTargetables = GetVisibleTargets();
 		
-		if(visibleTargets.Length == 0) {
+		if(visibleTargetables.Count == 0) {
 			TargettingComplete(null);
 		}
 		else {
@@ -55,18 +68,21 @@ public class TargettingControl : MonoBehaviour {
 		}
 	}
 	
-	void setDefaultSelection() {
-		if(savedSelection && visibleTargets.Contains(savedSelection)) {
-			currentSelection = visibleTargets.FindIndex(savedSelection);
-		}
-		else {
-			currentSelection = 0;
-		}
+	public void StopTargetting() {
+		selectWidgetRenderer.enabled = false;
+		visibleTargetables = null;
 	}
 	
+	void setDefaultSelection() {
+		currentSelection = 0;
+		if(savedSelection && visibleTargetables.Contains(savedSelection)) {
+			currentSelection = visibleTargetables.IndexOf(savedSelection);
+		}
+		savedSelection = visibleTargetables[currentSelection];
+	}
+				
 	void TargettingComplete(GameObject selection) {
-		selectWidgetRenderer.enabled = false;
-		visibleTargets = null;
+		StopTargetting();
 		callback(selection);
 	}
 	
@@ -111,13 +127,13 @@ public class TargettingControl : MonoBehaviour {
 	}
 	
 	void UpdateWidget() {
-		if(visibleTargets == null || currentSelection >= visibleTargets.Length) {
+		if(visibleTargetables == null || currentSelection >= visibleTargetables.Count) {
 			return;
 		}
 		
-		Debug.Log("Setting widget to: " + visibleTargets[currentSelection].position);
+		Debug.Log("Setting widget to: " + visibleTargetables[currentSelection].position);
 		
-		selectWidgetTransform.position = visibleTargets[currentSelection].position;
+		selectWidgetTransform.position = visibleTargetables[currentSelection].position;
 	}
 	
 }

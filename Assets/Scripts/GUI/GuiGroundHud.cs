@@ -19,7 +19,7 @@ public class GuiGroundHud : MonoBehaviour {
 		}
 		
 		
-		if( Input.GetKeyUp( KeyCode.Alpha1 ) ) {
+		if( Input.GetKeyDown( KeyCode.Alpha1 ) ) {
 			DoToolbar(1);
 		}
 	}
@@ -67,12 +67,18 @@ public class GuiGroundHud : MonoBehaviour {
 			return;
 		}
 		
-		TargettingControl.TargetAcquiredCallback callback = new TargettingControl.TargetAcquiredCallback( TargetAcquired );
+		TargettingControl.TargetAcquiredCallback callback = new TargettingControl.TargetAcquiredCallback( DoShootTarget );
 				
 		playerTargettingControl.StartTargetting( callback );
 	}
 	
-	void TargetAcquired(GameObject target) {
-		Debug.Log("***Target Acquired: " + target);
+	void DoShootTarget(GameObject target) {
+		Debug.Log("***DoShootTarget: " + target);
+		DamageControl targetDamageControl = target.GetComponent<DamageControl>();
+		DamageControl.DamageInfo di = new DamageControl.DamageInfo(100000);
+		
+		targetDamageControl.ReceiveDamage(di);
+		
 	}
+
 }

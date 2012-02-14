@@ -4,7 +4,8 @@ using System.Collections;
 [RequireComponent (typeof (CharacterController))]
 
 public class PlayerMoveGridless : MonoBehaviour {
-
+	
+	TargettingControl playerTargettingControl = null;
 	private CharacterController character_controller;
 	
 	// This should not be here -- it should be a characterstic of the map object
@@ -14,7 +15,8 @@ public class PlayerMoveGridless : MonoBehaviour {
 	
 	// Use this for initialization
 	void Start () {
-		character_controller = (CharacterController)this.GetComponent(typeof(CharacterController));
+		character_controller = this.GetComponent<CharacterController>();
+		playerTargettingControl = this.GetComponent<TargettingControl>();
 	}
 	
 	// Update is called once per frame
@@ -50,6 +52,8 @@ public class PlayerMoveGridless : MonoBehaviour {
 			Pause(false);
 			movement = movement.normalized * movement_rate;
 			character_controller.Move(movement * last_delta);
+			
+			playerTargettingControl.StopTargetting();
 		}
 		else if (Input.GetButton("Wait") ) {
 			Pause(false);

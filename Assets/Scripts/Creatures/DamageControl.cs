@@ -44,7 +44,7 @@ public class DamageControl : MonoBehaviour {
 		}	
 	}
 	
-	void ReceiveDamage ( DamageInfo damageInfo ) {
+	public void ReceiveDamage ( DamageInfo damageInfo ) {
 		health -= damageInfo.amount;
 		
 		if(health <= 0) {
